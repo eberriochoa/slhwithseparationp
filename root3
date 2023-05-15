@@ -1,0 +1,124 @@
+directorio = Directory[]
+
+
+
+ftest[z_] = 1/((z - 1.2) (1/z - 1.2) (z - 1.2 I) (1/z - 1.2/I))
+ftest[z_] = Exp[z] + Exp[1/z]
+
+
+Attributes[ftest] = {Listable}
+
+
+
+(* kepler.wls obtains the system of arcs related with the satellite \
+position and write it as arcosalpha *)
+
+n = 40; T = 2*Pi;
+
+Get["Dropbox/articulo2023/kepler.wls"]
+
+
+
+(* arcos.wls obtains all the system of arcs related with arcosalpha \
+in the sense of the paper and the related nodal systems *)
+Get["Dropbox/atypeofinterpolation2023/arcos.wls"]
+
+
+
+(* derivadas.wls obtains the derivatives used in the paper for a \
+nodal system in T *)
+listaalpha = alphaW2n; listaarcosalpha = arcosalphaW2n;
+Get["Dropbox/atypeofinterpolation2023/derivadas.wls"];
+derivadasalphaW2n = derivadas;
+derivadassegundasalphaW2n = derivadas*factoresderivadassegundas;
+
+(* same comment as before *)
+listaalpha = alphaYn; listaarcosalpha = arcosalphaYn;
+Get["Dropbox/atypeofinterpolation2023/derivadas.wls"];
+derivadasalphaYn = derivadas;
+derivadassegundasalphaYn = derivadas*factoresderivadassegundas;
+
+
+
+
+(* same comment as before *)
+listaalpha = alphaZn; listaarcosalpha = arcosalphaZn;
+Get["Dropbox/atypeofinterpolation2023/derivadas.wls"];
+derivadasalphaZn = derivadas;
+derivadassegundasalphaZn = derivadas*factoresderivadassegundas;
+
+(* u and v in the sense of the paper *)
+u = N[ftest[alphaW2n], 50]; v = N[ftest'[alphaW2n], 50];
+
+(* semi Hermite and semi Hermite-Fejer interpolants using the \
+barycentric formulae *)
+
+
+
+SHerm[z_] = (\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(k = 1\), \(n\)]\((
+\*FractionBox[\(alphapwp[\([\)\(2  
+            k\)\(]\)] derivadasalphaZn[\([\)\(k\)\(]\)] u[\([\)\(2  
+            k\)\(]\)]\), \(\((z - 
+            alphaW2n[\([\)\(2  
+              k\)\(]\)])\) \((derivadasalphaW2n[\([\)\(2  
+              k\)\(]\)])\)^2\)] + 
+\*FractionBox[\(alphapwp[\([\)\(2  k - 
+            1\)\(]\)]\), \(\((z - 
+             alphaW2n[\([\)\(2  k - 
+               1\)\(]\)])\) derivadasalphaW2n[\([\)\(2  k - 
+             1\)\(]\)] derivadasalphaYn[\([\)\(k\)\(]\)]\)]\ \((
+\*FractionBox[\(1\), \((z - alphaW2n[\([\)\(2  k - 1\)\(]\)])\)] - 
+\*FractionBox[\(derivadassegundasalphaW2n[\([\)\(2  k - 
+              1\)\(]\)]\), \(\(2\)\(\ \)\(derivadasalphaW2n[\([\)\(2  
+                k - 1\)\(]\)]\)\(\ \)\)] - 
+\*FractionBox[\(derivadassegundasalphaYn[\([\)\(k\)\(]\)]\), \(2\ \
+derivadasalphaYn[\([\)\(k\)\(]\)]\)] + 
+\*FractionBox[\(3  n\), \(2\)])\) u[\([\)\(2  k - 1\)\(]\)])\)\) + \!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(k = 1\), \(n\)]\((
+\*FractionBox[\(alphapwp[\([\)\(2  k - 
+           1\)\(]\)]\), \(\((z - 
+            alphaW2n[\([\)\(2  k - 
+              1\)\(]\)])\) derivadasalphaW2n[\([\)\(2  k - 
+            1\)\(]\)] derivadasalphaYn[\([\)\(k\)\(]\)]\)] v[\([\)\(2 \
+ k - 1\)\(]\)])\)\))/(\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(k = 1\), \(n\)]\((
+\*FractionBox[\(alphapwp[\([\)\(2  
+           k\)\(]\)] derivadasalphaZn[\([\)\(k\)\(]\)]\), \(\((z - 
+           alphaW2n[\([\)\(2  
+             k\)\(]\)])\) \((derivadasalphaW2n[\([\)\(2  
+             k\)\(]\)])\)^2\)] + 
+\*FractionBox[\(alphapwp[\([\)\(2  k - 
+           1\)\(]\)]\), \(\((z - 
+            alphaW2n[\([\)\(2  k - 
+              1\)\(]\)])\) derivadasalphaW2n[\([\)\(2  k - 
+            1\)\(]\)] derivadasalphaYn[\([\)\(k\)\(]\)]\)]\ \((
+\*FractionBox[\(1\), \((z - alphaW2n[\([\)\(2  k - 1\)\(]\)])\)] - 
+\*FractionBox[\(derivadassegundasalphaW2n[\([\)\(2  k - 
+             1\)\(]\)]\), \(\(2\)\(\ \)\(derivadasalphaW2n[\([\)\(2  
+               k - 1\)\(]\)]\)\(\ \)\)] - 
+\*FractionBox[\(derivadassegundasalphaYn[\([\)\(k\)\(]\)]\), \(2\ \
+derivadasalphaYn[\([\)\(k\)\(]\)]\)] + 
+\*FractionBox[\(3  n\), \(2\)])\))\)\));
+
+
+
+
+
+BB = Plot[{Re[SHerm[E^(I x)]], Re[ftest[E^(I x)]]}, {x, 0, 2 Pi}, 
+   PlotRange -> Full, PlotPoints -> 600, 
+   PlotStyle -> {{Red, Thickness[.001]}, {Black, Thickness[.001]}}, 
+   AspectRatio -> 5/7];
+BB1 = Plot[{Re[SHerm[E^(I x)]] - Re[ftest[E^(I x)]]}, {x, 0, 2 Pi}, 
+   PlotRange -> Full, PlotPoints -> 200, 
+   PlotStyle -> {{Black, Thickness[.001]}, {Black, Thickness[.001]}}, 
+   AspectRatio -> 5/7];
+
+
+
+
+(*AA=Table[{Re[Log[alphaW2n[[k]]]/I],Re[ftest[alphaW2n[[k]]]]},{k,1,\
+3n/4}];
+AA=ListPlot[AA,PlotStyle\[Rule]PointSize[.005]];*)
+Show[BB]
+Show[BB1]
