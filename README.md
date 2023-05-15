@@ -1,5 +1,5 @@
 # slhwithseparationp
-This repositoy is linked to the piece of work 
+This repositoy is linked to the piece of work  "A type of interpolation between those of Lagrange and Hermite that uses nodal systems satisfying some separation properties"
 
 You can find the eps files included in the text, see branch named graphs.
 
